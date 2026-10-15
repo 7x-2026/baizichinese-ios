@@ -1,0 +1,9 @@
+# macOS and Xcode local files
+.DS_Store
+xcuserdata/
+*.xcuserstate
+/DerivedData/
+/build/
+
+# Images are tracked individually; skip the duplicate archive
+/baizizhongwen/156Chinese.zip
