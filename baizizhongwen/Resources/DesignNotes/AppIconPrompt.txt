@@ -1,0 +1,15 @@
+Generator: built-in image_gen
+Purpose: Abstract app icon for 百字中文
+Date: 2026-10-22
+Production file: Resources/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png
+Export: 1024 x 1024 opaque PNG; resized with macOS sips.
+
+Final generation prompt:
+Use case: logo-brand.
+Asset type: one finished iOS application icon for a Chinese learning app built around nine-grid character diagrams.
+Create a new abstract visual direction. A single distinctive abstract modular emblem, constructed from interlocking broad geometric strokes, curved quarter-circle cuts, and deliberate negative space, arranged with subtle 3-by-3 mathematical rhythm. The emblem should feel like the underlying structure of written language without depicting any recognizable character or letter. Make it one cohesive mark, not nine app tiles and not a collage. Minimal yet memorable, editorial, sophisticated, calm and friendly.
+Palette: deep petrol teal and muted jade geometric forms, with ONE small warm golden-yellow accent, on a smooth solid warm ivory full-bleed background. Shapes should be broad, clean and legible as a tiny home-screen app icon.
+Composition: square 1024 by 1024, centered emblem occupying approximately 72 percent of the width. Carefully balanced negative space, confident harmonious proportions. No strokes thinner than 25 pixels at final size.
+Style: flat contemporary geometric brand design, exceptionally precise edges, subtle optical corrections, restrained color, like a thoughtful architectural monogram but entirely abstract. No paper texture, no calligraphy, no red seal aesthetic, no decorative handwriting.
+Constraints: zero text, zero Chinese glyphs, zero Latin letters, zero numerals, zero captions. No visible practice-grid lines. No book or graduation-cap illustration. No 3D, mockup, drop shadows, gradients, bevels, outside border, watermark or multiple alternatives. Fill the full square with the opaque ivory background, do not pre-round canvas corners. Return a single polished app icon.
+

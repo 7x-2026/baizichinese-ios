@@ -71,27 +71,7 @@ private enum PoemLinePronunciation {
     }
 }
 
-private enum HomePage: String, CaseIterable, Identifiable {
-    case treeDiagram = "树形图"
-    case spiralDiagram = "螺形图"
-    case riverDiagram = "河图"
-    case luoshuDiagram = "洛书"
-    case undividedRiverDiagram = "河图未分图"
-    case regularScriptPoem = "百字诗"
-    case oracleBonePoem = "百字诗（甲骨文）"
-
-    var id: Self {
-        self
-    }
-
-    var navigationTitle: String {
-        "百字中文（\(rawValue)）"
-    }
-}
-
 struct ContentView: View {
-    @State private var selectedPage: HomePage = .treeDiagram
-
     let levelColors: [Color] = [
         Color(red: 1.0,        green: 0.0,      blue: 0.0),       // 1 正红
         Color(red: 1.0,        green: 0.4,      blue: 0.0),       // 2 深橙
@@ -163,21 +143,24 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            selectedPageContent
-            .navigationTitle(selectedPage.navigationTitle)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    pageSwitcher
+            HomeGridView()
+                .navigationTitle("百字中文九宫格")
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationDestination(for: HomeDestination.self) { destination in
+                    destinationContent(for: destination)
+                        .navigationTitle(destination.rawValue)
+                        .navigationBarTitleDisplayMode(.inline)
                 }
-            }
         }
     }
 
     @ViewBuilder
-    private var selectedPageContent: some View {
-        switch selectedPage {
+    private func destinationContent(for destination: HomeDestination) -> some View {
+        switch destination {
         case .treeDiagram:
-            treeDiagram
+            ScrollView(.vertical) {
+                treeDiagram
+            }
 
         case .spiralDiagram:
             SpiralDiagramView()
@@ -191,11 +174,11 @@ struct ContentView: View {
         case .undividedRiverDiagram:
             UndividedRiverDiagramView(poemLines: poemLines)
 
-        case .regularScriptPoem:
-            RegularScriptPoemView()
+        case .poem:
+            PoemView()
 
-        case .oracleBonePoem:
-            placeholderPage(for: selectedPage)
+        case .characterDiagrams:
+            CharacterDiagramWallView(poemLines: poemLines)
         }
     }
 
@@ -231,44 +214,6 @@ struct ContentView: View {
             }
         }
         .padding()
-    }
-
-    private func placeholderPage(for page: HomePage) -> some View {
-        VStack {
-            Text("此处放置\(page.rawValue)内容")
-                .foregroundColor(.secondary)
-
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
-    }
-
-    private var pageSwitcher: some View {
-        Menu {
-            ForEach(HomePage.allCases) { page in
-                Button {
-                    selectedPage = page
-                } label: {
-                    if selectedPage == page {
-                        Label(page.rawValue, systemImage: "checkmark")
-                    } else {
-                        Text(page.rawValue)
-                    }
-                }
-            }
-        } label: {
-            Text("切换")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 7)
-                .background(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(Color.accentColor)
-                )
-        }
-        .accessibilityLabel("切换首页内容")
     }
 }
 

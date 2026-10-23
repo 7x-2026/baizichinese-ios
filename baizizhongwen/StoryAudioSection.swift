@@ -39,9 +39,26 @@ struct StoryAudioSection: View {
             } else {
                 ForEach(stories) { story in
                     VStack(alignment: .leading, spacing: 14) {
-                        Text(story.title)
-                            .font(.headline)
-                            .accessibilityAddTraits(.isHeader)
+                        NavigationLink {
+                            StoryTextView(story: story)
+                        } label: {
+                            HStack(spacing: 12) {
+                                Text(story.title)
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
+
+                                Spacer(minLength: 0)
+
+                                Image(systemName: "chevron.right")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(minHeight: 44, alignment: .leading)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(story.title)
+                        .accessibilityHint("查看故事全文")
 
                         ForEach(story.tracks) { track in
                             StoryAudioRow(

@@ -976,51 +976,27 @@ struct CharacterDiagramView: View {
     let character: Character
     let sequence: Int
 
-    private var diagramImage: UIImage? {
-        // 图片按全文字位编号；重复汉字也使用各自位置对应的图片。
-        let resourceName = "\(sequence)-\(character)"
-        guard let url = Bundle.main.url(
-            forResource: resourceName,
-            withExtension: "png",
-            subdirectory: "156Chinese"
-        ) ?? Bundle.main.url(forResource: resourceName, withExtension: "png") else {
-            return nil
-        }
-
-        return UIImage(contentsOfFile: url.path)
+    private var diagramURL: URL? {
+        CharacterDiagramResources.url(character: character, sequence: sequence)
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                if let diagramImage {
-                    Image(uiImage: diagramImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: 360)
-                        .accessibilityLabel("\(String(character))字图解")
-                } else {
-                    ContentUnavailableView(
-                        "暂无单字图解",
-                        systemImage: "photo",
-                        description: Text("\(String(character))字的图片暂时无法显示")
-                    )
-                }
-
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("此处放置文本")
-                        .foregroundColor(.secondary)
-
-                    Color.clear
-                        .frame(height: 400)
-                }
-                .frame(maxWidth: .infinity)
+        Group {
+            if let diagramURL {
+                ZoomableImageView(imageURL: diagramURL)
+                    .accessibilityLabel("\(String(character))字图解")
+                    .accessibilityHint("可双指缩放、拖动或双击放大")
+            } else {
+                ContentUnavailableView(
+                    "暂无单字图解",
+                    systemImage: "photo",
+                    description: Text("\(String(character))字的图片暂时无法显示")
+                )
             }
-            .padding()
         }
         .background(Color(.systemBackground))
         .navigationTitle(
-            "中华百字图解（\(ChineseNumberFormatter.string(from: sequence)))"
+            "中华百字图解（\(ChineseNumberFormatter.string(from: sequence))）"
         )
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -23,16 +23,29 @@ struct SpiralDiagramView: View {
 
 // MARK: - SwiftUI 与 UIScrollView 桥接
 
-/// 将 Assets 中的图片放入原生缩放滚动视图。
+/// 将 Assets 或本地文件中的图片放入原生缩放滚动视图。
 ///
 /// `UIScrollView` 同时处理双指缩放和放大后的拖动，比自行组合 SwiftUI 的
 /// MagnifyGesture 与 DragGesture 更适合大图阅览，也能自然处理惯性和边界。
-private struct ZoomableImageView: UIViewRepresentable {
-    let imageName: String
+struct ZoomableImageView: UIViewRepresentable {
+    private enum Source {
+        case asset(String)
+        case file(URL)
+    }
+
+    private let source: Source
+
+    init(imageName: String) {
+        source = .asset(imageName)
+    }
+
+    init(imageURL: URL) {
+        source = .file(imageURL)
+    }
 
     func makeUIView(context: Context) -> ZoomingImageScrollView {
         let scrollView = ZoomingImageScrollView()
-        scrollView.setImage(named: imageName)
+        loadImage(in: scrollView)
         return scrollView
     }
 
@@ -40,7 +53,16 @@ private struct ZoomableImageView: UIViewRepresentable {
         _ scrollView: ZoomingImageScrollView,
         context: Context
     ) {
-        scrollView.setImage(named: imageName)
+        loadImage(in: scrollView)
+    }
+
+    private func loadImage(in scrollView: ZoomingImageScrollView) {
+        switch source {
+        case .asset(let name):
+            scrollView.setImage(named: name)
+        case .file(let url):
+            scrollView.setImage(contentsOf: url)
+        }
     }
 }
 
@@ -51,7 +73,7 @@ private struct ZoomableImageView: UIViewRepresentable {
 /// 图片视图保持原始像素尺寸，`zoomScale` 负责所有缩放。最小比例按当前容器
 /// 完整容纳图片计算，最大比例为最小比例的五倍。容器尺寸变化（例如旋转设备）
 /// 时重新完整显示并居中，避免旧偏移使图片跑出屏幕。
-private final class ZoomingImageScrollView: UIScrollView, UIScrollViewDelegate {
+final class ZoomingImageScrollView: UIScrollView, UIScrollViewDelegate {
     private let zoomedImageView = UIImageView()
     private var representedImageName: String?
     private var lastContainerSize = CGSize.zero
@@ -97,7 +119,17 @@ private final class ZoomingImageScrollView: UIScrollView, UIScrollViewDelegate {
             return
         }
 
-        representedImageName = imageName
+        display(image, identifier: imageName)
+    }
+
+    func setImage(contentsOf url: URL) {
+        guard representedImageName != url.path else { return }
+        guard let image = UIImage(contentsOfFile: url.path) else { return }
+        display(image, identifier: url.path)
+    }
+
+    private func display(_ image: UIImage, identifier: String) {
+        representedImageName = identifier
         zoomedImageView.image = image
         zoomedImageView.frame = CGRect(origin: .zero, size: image.size)
         contentSize = image.size

@@ -23,15 +23,24 @@ struct StoryAudioTrack: Identifiable {
     var id: String { url.lastPathComponent }
 }
 
+struct StoryTextDocument: Identifiable {
+    let language: StoryAudioLanguage
+    let url: URL
+
+    var id: String { language.rawValue }
+}
+
 struct LineStory: Identifiable {
     let lineNumber: Int
     let title: String
     let tracks: [StoryAudioTrack]
+    let texts: [StoryTextDocument]
 
     var id: String { "\(lineNumber)-\(title)" }
 }
 
 /// 从 line1-故事名(zh/en).m4a 自动生成故事列表。
+/// 源文件统一放在 Resources/Stories/Line编号，音频与对应语言文本放在一起。
 /// Xcode 可以平铺或保留资源目录，因此按文件名识别，不依赖打包后的目录层级。
 struct StoryAudioLibrary {
     static let shared = StoryAudioLibrary(bundle: .main)
@@ -47,14 +56,16 @@ struct StoryAudioLibrary {
             )
         }
         let urls = enumerator?.allObjects.compactMap { $0 as? URL } ?? []
-        self.init(audioURLs: urls)
+        self.init(resourceURLs: urls)
     }
 
-    init(audioURLs: [URL]) {
+    init(resourceURLs: [URL]) {
         var tracksByLine: [Int: [String: [StoryAudioTrack]]] = [:]
+        var textsByLine: [Int: [String: [StoryTextDocument]]] = [:]
 
-        for url in audioURLs.sorted(by: { $0.path < $1.path }) {
-            guard url.pathExtension.lowercased() == "m4a" else { continue }
+        for url in resourceURLs.sorted(by: { $0.path < $1.path }) {
+            let fileExtension = url.pathExtension.lowercased()
+            guard fileExtension == "m4a" || fileExtension == "txt" else { continue }
 
             let name = url.deletingPathExtension().lastPathComponent
             guard name.hasPrefix("line"),
@@ -68,13 +79,22 @@ struct StoryAudioLibrary {
             let title = String(name[name.index(after: separator)...].dropLast(4))
             guard !title.isEmpty else { continue }
 
-            // 同名资源即使重复出现，也只展示一条对应语言的播放器。
-            let existingTracks = tracksByLine[lineNumber]?[title] ?? []
-            guard !existingTracks.contains(where: { $0.language == language }) else { continue }
+            if fileExtension == "txt" {
+                let existingTexts = textsByLine[lineNumber]?[title] ?? []
+                guard !existingTexts.contains(where: { $0.language == language }) else { continue }
 
-            tracksByLine[lineNumber, default: [:]][title, default: []].append(
-                StoryAudioTrack(language: language, url: url)
-            )
+                textsByLine[lineNumber, default: [:]][title, default: []].append(
+                    StoryTextDocument(language: language, url: url)
+                )
+            } else {
+                // 同名资源即使重复出现，也只展示一条对应语言的播放器。
+                let existingTracks = tracksByLine[lineNumber]?[title] ?? []
+                guard !existingTracks.contains(where: { $0.language == language }) else { continue }
+
+                tracksByLine[lineNumber, default: [:]][title, default: []].append(
+                    StoryAudioTrack(language: language, url: url)
+                )
+            }
         }
 
         storiesByLine = Dictionary(uniqueKeysWithValues: tracksByLine.map { lineNumber, stories in
@@ -82,7 +102,9 @@ struct StoryAudioLibrary {
                 LineStory(
                     lineNumber: lineNumber,
                     title: title,
-                    tracks: tracks.sorted { $0.language.sortOrder < $1.language.sortOrder }
+                    tracks: tracks.sorted { $0.language.sortOrder < $1.language.sortOrder },
+                    texts: (textsByLine[lineNumber]?[title] ?? [])
+                        .sorted { $0.language.sortOrder < $1.language.sortOrder }
                 )
             }
             .sorted {
