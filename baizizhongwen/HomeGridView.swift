@@ -6,6 +6,8 @@ enum HomeDestination: String, Hashable {
     case treeDiagram = "百字树图"
     case luoshuDiagram = "洛书字图"
     case poem = "百字中文诗"
+    case hundredChinese = "百字中文"
+    case thousandChinese = "千字中文"
     case characterDiagrams = "百字图解"
     case spiralDiagram = "百字圆圈图"
     case undividedRiverDiagram = "河洛未分图"
@@ -33,9 +35,9 @@ private struct HomeGridItem {
               colors: [Color(red: 0.70, green: 0.74, blue: 0.67), .white]),
         .init(title: "百字中文诗", displayTitle: "百字\n中文诗", destination: .poem,
               colors: [mint, yellow.opacity(0.65)]),
-        .init(title: "百字中文", displayTitle: "百字\n中文", destination: nil,
+        .init(title: "百字中文", displayTitle: "百字\n中文", destination: .hundredChinese,
               colors: [Color(red: 1, green: 0.88, blue: 0.22), yellow]),
-        .init(title: "千字中文", displayTitle: "千字\n中文", destination: nil,
+        .init(title: "千字中文", displayTitle: "千字\n中文", destination: .thousandChinese,
               colors: [teal, yellow.opacity(0.7)]),
         .init(title: "百字图解", displayTitle: "百字\n图解", destination: .characterDiagrams,
               colors: [teal.opacity(0.8), coral]),

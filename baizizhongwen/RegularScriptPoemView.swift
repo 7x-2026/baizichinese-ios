@@ -168,9 +168,9 @@ private struct PoemDisplayLine: Identifiable {
     }
 }
 
-/// “百字诗”一级页面。
+/// 书法封面之后的百字诗长文页面。
 ///
-/// 导航栏已经由 `ContentView` 显示“百字中文（百字诗）”，所以正文不再重复
+/// 导航栏已经显示“中文百字诗”，所以正文不再重复
 /// 图片中的“中文百字诗”标题，只呈现可滚动阅读的诗句。
 struct RegularScriptPoemView: View {
     /// 每个汉字拥有相同的显示宽度，使拼音可以严格位于字心正上方。

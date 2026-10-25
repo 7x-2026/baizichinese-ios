@@ -158,9 +158,10 @@ struct ContentView: View {
     private func destinationContent(for destination: HomeDestination) -> some View {
         switch destination {
         case .treeDiagram:
-            ScrollView(.vertical) {
-                treeDiagram
-            }
+            TreeDiagramView(poemLines: poemLines, levelColors: levelColors)
+
+        case .hundredChinese:
+            TreeDiagramView(poemLines: poemLines, levelColors: levelColors, showsTrunk: false)
 
         case .spiralDiagram:
             SpiralDiagramView()
@@ -175,46 +176,16 @@ struct ContentView: View {
             UndividedRiverDiagramView(poemLines: poemLines)
 
         case .poem:
-            PoemView()
+            PoemCoverView()
+
+        case .thousandChinese:
+            ThousandChineseView()
 
         case .characterDiagrams:
             CharacterDiagramWallView(poemLines: poemLines)
         }
     }
 
-    private var treeDiagram: some View {
-        VStack(spacing: 0) {
-            ForEach(poemLines) { poemLine in
-                let charCount = poemLine.text.count
-                let backgroundColor: Color = {
-                    if (1...12).contains(charCount) {
-                        return levelColors[charCount - 1]
-                    }
-                    return .clear
-                }()
-
-                NavigationLink {
-                    LineDetailView(
-                        lineIndex: poemLine.lineIndex,
-                        line: poemLine.text,
-                        pinyin: poemLine.pinyin,
-                        startingSequence: poemLine.startingSequence
-                    )
-                } label: {
-                    HStack {
-                        Spacer()
-                        Text(poemLine.text)
-                            .font(.system(size: 22, weight: .bold, design: .serif))
-                            .foregroundColor(.black)
-                            .background(backgroundColor)
-                        Spacer()
-                    }
-                    .contentShape(Rectangle())
-                }
-            }
-        }
-        .padding()
-    }
 }
 
 #Preview {

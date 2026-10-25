@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 百字诗的两种文字版本共用一个展示页。
+/// 从书法封面进入后，两种文字版本共用一个长文阅读页。
 struct PoemView: View {
     private enum Version: String, CaseIterable, Identifiable {
         case regular = "楷书"

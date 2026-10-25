@@ -45,6 +45,14 @@ struct LineStory: Identifiable {
 struct StoryAudioLibrary {
     static let shared = StoryAudioLibrary(bundle: .main)
 
+    /// 童谣在前，动物故事按照十二生肖顺序展示。
+    private static let zodiacStoryTitles = [
+        "十二生肖童谣", "老鼠的故事", "公牛的故事", "老虎的故事",
+        "兔子的故事", "一条蓝龙", "蛇的故事", "马和老鼠的故事",
+        "狼和小羊的故事", "猴子的故事", "公鸡的故事", "狗的故事",
+        "白头神猪的故事"
+    ]
+
     private let storiesByLine: [Int: [LineStory]]
 
     init(bundle: Bundle) {
@@ -108,7 +116,14 @@ struct StoryAudioLibrary {
                 )
             }
             .sorted {
-                $0.title.compare(
+                if lineNumber == 23 || lineNumber == 24 {
+                    let firstOrder = Self.zodiacStoryTitles.firstIndex(of: $0.title) ?? Int.max
+                    let secondOrder = Self.zodiacStoryTitles.firstIndex(of: $1.title) ?? Int.max
+                    if firstOrder != secondOrder {
+                        return firstOrder < secondOrder
+                    }
+                }
+                return $0.title.compare(
                     $1.title,
                     options: [.numeric],
                     locale: Locale(identifier: "zh_Hans_CN")
@@ -120,6 +135,8 @@ struct StoryAudioLibrary {
 
     /// 导航使用零基行号，素材文件夹和文件名使用一基行号。
     func stories(forLineIndex lineIndex: Int) -> [LineStory] {
-        storiesByLine[lineIndex + 1] ?? []
+        // 生肖与地支两行共用 Line23 的文本和音频，避免重复打包。
+        let resourceLine = lineIndex == 23 ? 23 : lineIndex + 1
+        return storiesByLine[resourceLine] ?? []
     }
 }
